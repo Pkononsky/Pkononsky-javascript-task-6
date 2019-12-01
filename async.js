@@ -8,14 +8,14 @@ const isStar = true;
 
 function getTimeoutPromise(timeout) {
     return new Promise((_, reject) => {
-        return setTimeout(reject, timeout, new Error('timeout'));
+        setTimeout(reject, timeout, new Error('timeout'));
     });
 }
 
 function performNextJob(jobs, currentIndex, timeout, addJobResults) {
     Promise.race([jobs[currentIndex](), getTimeoutPromise(timeout)])
         .then((res) => addJobResults(res, currentIndex))
-        .catch((res) => addJobResults([res], currentIndex));
+        .catch((res) => addJobResults(res, currentIndex));
 }
 
 /**
@@ -28,7 +28,7 @@ function performNextJob(jobs, currentIndex, timeout, addJobResults) {
  */
 function runParallel(jobs, parallelNum, timeout = 1000) {
     return new Promise((resolve) => {
-        if (jobs.length === 0) {
+        if (jobs.length === 0 || parallelNum === 0) {
             resolve([]);
         }
         let currentIndex = -1;
