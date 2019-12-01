@@ -8,7 +8,7 @@ const isStar = true;
 
 function getTimeoutPromise(timeout) {
     return new Promise((_, reject) => {
-        setTimeout(reject, timeout, new Error(`Promise timeout`));
+        setTimeout(reject, timeout, new Error('Promise timeout'));
     });
 }
 
