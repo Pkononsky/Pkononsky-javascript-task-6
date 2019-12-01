@@ -26,9 +26,9 @@ function performNextJob(jobs, currentIndex, timeout, addJobResults) {
  * @param {Number} timeout - таймаут работы промиса
  * @returns {Promise<Array>}
  */
-function runParallel(jobs, parallelNum, timeout = 2000) {
+function runParallel(jobs, parallelNum, timeout = 1000) {
     return new Promise((resolve) => {
-        if (jobs.length === 0) {
+        if (jobs === null || jobs.length === 0) {
             resolve([]);
         }
         let currentIndex = -1;
