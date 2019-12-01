@@ -15,7 +15,7 @@ function getTimeoutPromise(timeout) {
 function performNextJob(jobs, currentIndex, timeout, addJobResults) {
     Promise.race([jobs[currentIndex](), getTimeoutPromise(timeout)])
         .then((res) => addJobResults(res, currentIndex))
-        .catch((res) => addJobResults(res, currentIndex));
+        .catch((res) => addJobResults([res], currentIndex));
 }
 
 /**
