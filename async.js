@@ -28,7 +28,7 @@ function performNextJob(jobs, currentIndex, timeout, addJobResults) {
  */
 function runParallel(jobs, parallelNum, timeout = 1000) {
     return new Promise((resolve) => {
-        if (jobs === null || jobs.length === 0) {
+        if (jobs === undefined || jobs.length === 0) {
             resolve([]);
         }
         let currentIndex = -1;
