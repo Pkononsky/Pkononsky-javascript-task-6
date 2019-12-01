@@ -6,6 +6,18 @@
  */
 const isStar = true;
 
+function getTimeoutPromise(timeout) {
+    return new Promise((_, reject) => {
+        return setTimeout(reject, timeout, new Error('timeout'));
+    });
+}
+
+function performNextJob(jobs, currentIndex, timeout, addJobResults) {
+    Promise.race([jobs[currentIndex](), getTimeoutPromise(timeout)])
+        .then((res) => addJobResults(res, currentIndex))
+        .catch((res) => addJobResults(res, currentIndex));
+}
+
 /**
  * Функция паралелльно запускает указанное число промисов
  *
@@ -15,7 +27,27 @@ const isStar = true;
  * @returns {Promise<Array>}
  */
 function runParallel(jobs, parallelNum, timeout = 1000) {
-    // Самая сильная асинхронная магия
+    return new Promise((resolve) => {
+        if (jobs.length === 0) {
+            resolve([]);
+        }
+        let currentIndex = -1;
+        let jobResults = {};
+
+        while (currentIndex < jobs.length - 1 && parallelNum-- > 0) {
+            performNextJob(jobs, ++currentIndex, timeout, addJobResults);
+        }
+
+        function addJobResults(result, index) {
+            jobResults[index] = result;
+            let values = Object.values(jobResults);
+            if (values.length === jobs.length) {
+                resolve(values);
+            } else if (currentIndex < jobs.length - 1) {
+                performNextJob(jobs, ++currentIndex, timeout, addJobResults);
+            }
+        }
+    });
 }
 
 module.exports = {
