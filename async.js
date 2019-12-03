@@ -33,9 +33,8 @@ function runParallel(jobs, parallelNum, timeout = 1000) {
         }
 
         function resolveCheck() {
-            let values = Object.values(jobResults);
-            if (values.length === jobs.length) {
-                resolve(values);
+            if (jobResults.length === jobs.length) {
+                resolve(jobResults);
             } else if (currentIndex < jobs.length) {
                 performNextJob(currentIndex++);
             }
