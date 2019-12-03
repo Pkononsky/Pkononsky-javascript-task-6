@@ -12,12 +12,6 @@ function getTimeoutPromise(timeout) {
     });
 }
 
-function performNextJob(jobs, currentIndex, timeout, addJobResults) {
-    Promise.race([jobs[currentIndex](), getTimeoutPromise(timeout)])
-        .then((res) => addJobResults(res, currentIndex))
-        .catch((res) => addJobResults(res, currentIndex));
-}
-
 /**
  * Функция паралелльно запускает указанное число промисов
  *
@@ -28,24 +22,33 @@ function performNextJob(jobs, currentIndex, timeout, addJobResults) {
  */
 function runParallel(jobs, parallelNum, timeout = 1000) {
     return new Promise((resolve) => {
-        if (jobs.length === 0) {
+        if (!jobs.length) {
             resolve([]);
         }
-        let currentIndex = -1;
-        let jobResults = {};
+        let currentIndex = 0;
+        let jobResults = [];
 
-        while (currentIndex < jobs.length - 1 && parallelNum-- > 0) {
-            performNextJob(jobs, ++currentIndex, timeout, addJobResults);
+        while (currentIndex < jobs.length && parallelNum-- > 0) {
+            performNextJob(currentIndex++);
         }
 
-        function addJobResults(result, index) {
-            jobResults[index] = result;
+        function resolveCheck() {
             let values = Object.values(jobResults);
             if (values.length === jobs.length) {
                 resolve(values);
-            } else if (currentIndex < jobs.length - 1) {
-                performNextJob(jobs, ++currentIndex, timeout, addJobResults);
+            } else if (currentIndex < jobs.length) {
+                performNextJob(currentIndex++);
             }
+        }
+
+        function performNextJob(index) {
+            const addResultHelper = res => {
+                jobResults[index] = res;
+            };
+            Promise.race([jobs[index](), getTimeoutPromise(timeout)])
+                .then(addResultHelper)
+                .catch(addResultHelper)
+                .then(() => resolveCheck());
         }
     });
 }
